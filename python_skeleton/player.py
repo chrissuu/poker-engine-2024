@@ -550,13 +550,13 @@ class Player(Bot):
         if bool_bet > 0 and not call:
             return RaiseAction(bool_bet)
         
-        if bool_bet > 0 and call:
+        elif bool_bet > 0 and call:
             return CallAction()
         
-        if bool_bet == 0 and not call:
+        elif bool_bet == 0 and not call:
             return CheckAction() 
-       
-        return FoldAction()
+        else:
+            return FoldAction()
 
 if __name__ == '__main__':
     run_bot(Player(), parse_args())
