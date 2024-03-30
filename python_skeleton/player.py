@@ -532,13 +532,13 @@ class Player(Bot):
 
         bool_bet, call = self.bet_or_nah(observation)
         
-        if bool_bet > 0 and not call:
+        if bool_bet > 0 and not call and RaiseAction in observation["legal_actions"]:
             return RaiseAction(bool_bet)
         
-        elif bool_bet > 0 and call:
+        elif bool_bet > 0 and call and CallAction in observation["legal_actions"]:
             return CallAction()
         
-        elif bool_bet == 0 and not call:
+        elif bool_bet == 0 and not call and CheckAction in observation["legal_actions"]:
             return CheckAction() 
         else:
             return FoldAction()
