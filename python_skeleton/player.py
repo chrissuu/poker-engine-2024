@@ -302,7 +302,7 @@ class Player(Bot):
                     # else: #call as small blind
                     #     return (bet_size, True)
                     if equity > 0.3:
-                        return (int(observation["my_stack"]/2), False)
+                        return (int(observation["my_stack"]/4), False)
                     else:
                         return (1, True)
                 else: # enemy raised as small blind (you are big blind)
