@@ -300,6 +300,7 @@ class Player(Bot):
         my_hand = observation["my_cards"]
         my_cards = (my_hand[0], my_hand[1])
         potsize = 400 - (observation["my_stack"] + observation["op_stack"])
+        button = False
         
         # PREFLOP_EQUITY_SCALE,PREFLOP_RAISE_STANDARD,PREFLOP_RAISE_SCALE,PREFLOP_CALL_STANDARD,PREFLOP_RAISE_STANDARD,PREFLOP_RAISED_AGAINST_SCALE = PREFLOP(x_1,x_2,x_3,x_4,x_5,x_6)
         PREFLOP_EQUITY_SCALE,PREFLOP_RAISE_STANDARD,PREFLOP_RAISE_SCALE,PREFLOP_CALL_STANDARD,PREFLOP_RAISE_STANDARD,PREFLOP_RAISED_AGAINST_SCALE = PREFLOP()
@@ -309,6 +310,7 @@ class Player(Bot):
             if observation["opp_pip"] - observation["my_pip"] > 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if bet_size == 1: #you are small blind first action
+                    button = True
                     #you can either call or raise
                     if equity > PREFLOP_RAISE_STANDARD: #0.3, given some equity is it high enough to raise?
                         if potsize * PREFLOP_RAISE_SCALE > observation["max_raise"]:
@@ -346,11 +348,13 @@ class Player(Bot):
                     #calculate your equity. 
             elif observation["opp_pip"] - observation["my_pip"] == 0: #you can either check or raise:
                 if equity > 0.3:
-                    return (int(potsize + potsize*0.7))
-            else: # There is no bet against you. you can either check or fold. #YOU ARE BIG BLIND
+                    return (int(potsize*PREFLOP_RAISE_SCALE), False)
+                else:
+                    return (0, False)
+            else: # There is no bet against you. you can either check  #YOU ARE BIG BLIND
                 if equity > 0.3: #if you have at least 30% equity
                     return (int(potsize*0.7), False)
-                else:
+                else: #checking
                     return (0, False);
 
             ###### you only have the option to check on preflop if you are big blind on first action
@@ -366,7 +370,17 @@ class Player(Bot):
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
-                        return (-1, False) #this can be exploitable ***TENTATIVE*** (WE FOLD TOO MUCH)
+                        difference = abs(equity - self.equity_needed_against_bet(bet_size, potsize-bet_size))
+                        if difference < 0.05: #PREFLOP_BLUFFING_STANDARD if the margin we are down equity by is less than 5%
+                            x = random.randrage(1, 101)
+                            if x > 15: #90 percent of the times we will opt to fold
+                                return (-1, False)
+                            else: #85 percent of the times we will raise bluff
+                                if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                    return ((observation["max_raise"]), False)
+                                return ((observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE), False) #3 betting nearly 3x the raise, 1.4
+                        return (-1, False) #we are now folding the hands when our equity deficit is less than 8%
+                        # return (-1, False) #this can be exploitable ***TENTATIVE*** (WE FOLD TOO MUCH)
                 else: #we do not have less equity (can either call or re-raise)
                     difference = equity - self.equity_needed_against_bet(bet_size, potsize-bet_size)
                     if difference < 0.05: #WE OPT TO CALL
@@ -375,16 +389,53 @@ class Player(Bot):
                         if difference > PREFLOP_RAISE_STANDARD: #equity difference is high 10%, how much are you confident relative to opp equity, 0.1
                             if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
                                 return ((observation["max_raise"]), False)
-                            return ((observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE), False) #equity difference is high 10%
+                            return ((observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE), False) #equity difference is high 10% 3x bet
                         else:
                             return ((observation["min_raise"] * 1), False)
             else: #no bet against you you can either check or raise.
                 if equity > 0.3: #if you have at least 30% equity
-                    return (int(potsize*0.7), False)
+                    if not button:
+                        x = random.randrange(1, 101)
+                        if x < 30: #30 percent of hands when we are out of position and we have high equity, we will raise on first action
+                            if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                return ((observation["max_raise"]), False)
+                            return (int(potsize * 0.7), False)
+                        else:
+                            return(0, False)
+                    else: # if we have position and equity advantage
+                        x = random.randrange(1, 101)
+                        if equity > 0.42: #AFTER FLOP WE HAVE VERY HIGH EQUITY AND WE HAVE POSITION
+                            if 1 < x < 20: #20 percent of the time we check to trap
+                                return(0, False)
+                            elif 20 <= x < 50: # 70 percent of the time we make a value bet
+                                if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                    return ((observation["max_raise"]), False)
+                                return (int(potsize * 0.5), False)
+                            else: #50 percent of the time in position, we all in with the best hand
+                                return (observation["max_raise"], False)
+                        else: #our equity is between 30% and 42 
+                            if 1 < x < 15: #20 percent of the time we check to trap
+                                return(0, False)
+                            elif 15 <= x < 85: # 70 percent of the time we make a value bet
+                                if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                    return ((observation["max_raise"]), False)
+                                return (int(potsize * 0.7), False)
+                            else: #15 percent of the time in position, we all in with the best hand
+                                return (observation["max_raise"], False)
+                            
                 else:
-                    return (0, False);
-
-
+                    x = random.randrange(1, 101)
+                    if equity > 0.2:
+                        if 1 < x < 60: #20 percent of the time we check
+                            return(0, False)
+                        elif 60 <= x < 97: # 37 percent of the time we make a stab
+                            if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                return ((observation["max_raise"]), False)
+                            return (int(potsize * 0.5), False)
+                        else: #<4 percent of the time in position, we all in with a meh ass hand
+                            return (observation["max_raise"], False)
+                    else:
+                        return(0, False)
 
 
         #RIVER
