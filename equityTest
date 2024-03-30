@@ -175,4 +175,5 @@ def postRiverEquity(hand, board):
                 enemyWins += 1
     return 1- (enemyWins/count)
 
-print(preFlopEquity(('3D', '6S')))
+print(preFlopEquity(('4H', '6D'))*0.5)
+print(preFlopEquity(('4D', '7S'))*0.5)
