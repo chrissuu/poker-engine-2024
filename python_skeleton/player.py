@@ -498,7 +498,7 @@ class Player(Bot):
         self.log.append("My bankroll: " + str(observation["my_bankroll"]))
         
 
-        bool_bet, call = bet_or_nah(observation)
+        bool_bet, call = self.bet_or_nah(observation)
         
         if bool_bet > 0 and not call:
             return RaiseAction(bool_bet)
