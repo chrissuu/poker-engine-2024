@@ -280,15 +280,15 @@ class Player(Bot):
     #     if equity_difference < 0.5:
         
     
-    def bet_or_nah(self, observation: dict):
+    def bet_or_nah(self, observation: dict, potsize):
         my_hand = observation["my_cards"]
-        my_cards = (my_hand[0], my_hand[1])
-        potsize = 800 - (observation["my_stack"] + observation["opp_stack"])
+        my_cards = (my_hand[0].toUpper(), my_hand[1].toUpper())
+       
         button = False
         
 
         if observation["street"] == 0:
-            equity = preFlopEquity(my_cards.toUpper()) * 0.5 #0.5
+            equity = preFlopEquity(my_cards) * 0.5 #0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if bet_size == 1: #you are small blind first action
@@ -348,7 +348,7 @@ class Player(Bot):
             # 
         if observation["street"] == 1: #FLOP
             flop_card = observation["board_cards"][0].toUpper()
-            equity = postFlopEquity(flop_card, my_cards.toUpper()) * 0.5
+            equity = postFlopEquity(flop_card, my_cards) * 0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
@@ -528,9 +528,9 @@ class Player(Bot):
         self.log.append("My stack: " + str(observation["my_stack"]))
         self.log.append("My contribution: " + str(my_contribution))
         self.log.append("My bankroll: " + str(observation["my_bankroll"]))
-        
+        potsize = my_contribution + opp_contribution
 
-        bool_bet, call = self.bet_or_nah(observation)
+        bool_bet, call = self.bet_or_nah(observation, potsize)
         
         if bool_bet > 0 and not call and RaiseAction in observation["legal_actions"]:
             return RaiseAction(bool_bet)
