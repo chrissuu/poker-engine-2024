@@ -69,19 +69,32 @@ num_to_action = {0: "Fold", 1: "Call", 2: "Check", 3: "Raise"}
 
 
 # Single player mode
-env = PokerEnv(num_rounds=1000, opp_bot=random_bot)
-obs, info = env.reset()
-bot = random_bot
-print("\n"+"*"*50 + " Single Player " + "*"*50)
-print(obs)
+LOOP_ITER = 50
+NUM_ROUNDS = 1000
+def practice():
+    avg = 0
+    for i in range(0,LOOP_ITER):
+        env = PokerEnv(num_rounds=NUM_ROUNDS, opp_bot=raise_bot)
+        obs, info = env.reset()
+        bot = random_bot
+        # print("\n"+"*"*50 + " Single Player " + "*"*50)
+        # print(obs)
 
-done = False
-while not done:
-    action = bot(obs)
-    print(f"Bot1: {num_to_action[action[0]]} {action[1]}")
-    print("\n")
-    obs, reward, done, trunc, info = env.step(action)
-    if reward != 0:
-        print("New Round")
-    print(obs, reward, done)
+        done = False
+        while not done:
+            action = bot(obs)
+            # print(f"Bot1: {num_to_action[action[0]]} {action[1]}")
+            # print("\n")
+            obs, reward, done, trunc, info = env.step(action)
+            # if reward != 0:
+            #     print("New Round")
+            # print(obs, reward, done)
+            # print(obs.keys())
+        # print(obs["my_bankroll"].astype('float64'))
+        avg += obs["my_bankroll"].astype('float64')
+        
+    
+    avg /= LOOP_ITER
+    return avg
 
+print(practice())
