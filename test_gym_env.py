@@ -1,7 +1,7 @@
 from engine.gym_env import PokerEnv 
 import numpy as np
-
-# 0: Fold, 1: Call, 2: Check, 3: Raise
+from python_skeleton.skeleton.actions import *
+from python_skeleton.player import Player
 
 def call_check_bot(obs):
     # Call if possible, otherwise check
@@ -42,6 +42,8 @@ def fold_bot(obs):
 
 num_to_action = {0: "Fold", 1: "Call", 2: "Check", 3: "Raise"}
 
+def player_bot(obs):
+    Player.get_action(obs)
 
 # # Two player mode
 # env = PokerEnv(1000)
@@ -74,12 +76,12 @@ NUM_ROUNDS = 1000
 def practice():
     avg = 0
     for i in range(0,LOOP_ITER):
-        env = PokerEnv(num_rounds=NUM_ROUNDS, opp_bot=raise_bot)
+        env = PokerEnv(num_rounds=NUM_ROUNDS, opp_bot=random_bot)
         obs, info = env.reset()
-        bot = random_bot
+        
         # print("\n"+"*"*50 + " Single Player " + "*"*50)
         # print(obs)
-
+        bot = player_bot
         done = False
         while not done:
             action = bot(obs)
