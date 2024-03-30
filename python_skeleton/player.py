@@ -17,7 +17,6 @@ x_2 = random.randrange(1,100) /100
 x_3 = random.randrange(1,100) /100
 x_4 = random.randrange(1,100) /100
 x_5 = random.randrange(1,100) /100
-x_6 = random.randrange(1,100) /100
 
 def PREFLOP(PREFLOP_EQUITY_SCALE = 0.5, PREFLOP_RAISE_STANDARD = 0.3, PREFLOP_RAISE_SCALE = 1.5, PREFLOP_CALL_STANDARD = 0.3, PREFLOP_RAISED_AGAINST_SCALE = 1.4):
     return (
@@ -26,7 +25,6 @@ def PREFLOP(PREFLOP_EQUITY_SCALE = 0.5, PREFLOP_RAISE_STANDARD = 0.3, PREFLOP_RA
            PREFLOP_RAISE_SCALE,
            PREFLOP_CALL_STANDARD,
            PREFLOP_RAISED_AGAINST_SCALE
-
            )
     
 
