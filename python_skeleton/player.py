@@ -299,7 +299,7 @@ class Player(Bot):
     def bet_or_nah(self, observation: dict):
         my_hand = observation["my_cards"]
         my_cards = (my_hand[0], my_hand[1])
-        potsize = 400 - (observation["my_stack"] + observation["op_stack"])
+        potsize = 400 - (observation["my_stack"] + observation["opp_stack"])
         button = False
         
         # PREFLOP_EQUITY_SCALE,PREFLOP_RAISE_STANDARD,PREFLOP_RAISE_SCALE,PREFLOP_CALL_STANDARD,PREFLOP_RAISE_STANDARD,PREFLOP_RAISED_AGAINST_SCALE = PREFLOP(x_1,x_2,x_3,x_4,x_5,x_6)
