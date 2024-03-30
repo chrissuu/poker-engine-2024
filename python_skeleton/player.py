@@ -584,18 +584,18 @@ def raise_bot(obs):
     else:
         return call_check_bot(obs)
     
-def random_bot(obs):
-    # Randomly choose a legal action
-    action_probs = np.random.rand(4)
-    action_probs = action_probs * obs["legal_actions"]
-    action = np.argmax(action_probs)
-    if action == 3:
-        min_raise = obs["min_raise"][0]
-        max_raise = obs["max_raise"][0]
-        raise_amount = np.random.randint(min_raise, max_raise+1)
-        return (action, raise_amount)
-    else:
-        return (action, 0)
+# def random_bot(obs):
+#     # Randomly choose a legal action
+#     action_probs = np.random.rand(4)
+#     action_probs = action_probs * obs["legal_actions"]
+#     action = np.argmax(action_probs)
+#     if action == 3:
+#         min_raise = obs["min_raise"][0]
+#         max_raise = obs["max_raise"][0]
+#         raise_amount = np.random.randint(min_raise, max_raise+1)
+#         return (action, raise_amount)
+#     else:
+#         return (action, 0)
     
 def fold_bot(obs):
     if obs["legal_actions"][0] == 1:
