@@ -297,7 +297,7 @@ class Player(Bot):
                     if equity > 0.3: #0.3, given some equity is it high enough to raise?
                         if potsize * 1.5 > observation["max_raise"]:
                             return (observation["max_raise"], False)
-                        else: return (int(potsize * 1.5)+potsize, False) #how much do you scale potsize by?
+                        else: return (3, False) #how much do you scale potsize by?
                     else: #call as small blind
                         return (bet_size, True)
                 else: # enemy raised as small blind (you are big blind)
@@ -534,10 +534,8 @@ class Player(Bot):
         
         if bool_bet > 0 and not call and RaiseAction in observation["legal_actions"]:
             return RaiseAction(bool_bet)
-        
         elif bool_bet > 0 and call and CallAction in observation["legal_actions"]:
             return CallAction()
-        
         elif bool_bet == 0 and not call and CheckAction in observation["legal_actions"]:
             return CheckAction() 
         else:
