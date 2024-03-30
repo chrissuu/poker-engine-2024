@@ -284,7 +284,7 @@ class Player(Bot):
         my_cards = (my_hand[0], my_hand[1])
         potsize = 400 - (observation["my_stack"] + observation["op_stack"])
         if observation["street"] == 0:
-            equity = preFlopEquity(my_cards)
+            equity = preFlopEquity(my_cards) * 0.5
             if observation["opp_pip"] - observation["my_pip"] < 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if observation["opp_pip"] - observation["my_pip"] == -1: #you are small blind first action
@@ -327,7 +327,7 @@ class Player(Bot):
             # 
         if observation["street"] == 1: #FLOP
             
-            equity = postFlopEquity(my_cards)
+            equity = postFlopEquity(my_cards) * 0.5
             if observation["opp_pip"] - observation["my_pip"] < 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize) < 0: #we have less equity than the price (the price to pay is more than our equity)
@@ -349,7 +349,7 @@ class Player(Bot):
 
         #RIVER
         if observation["street"] == 2:
-            equity = postRiverEquity(my_cards)
+            equity = postRiverEquity(my_cards) * 0.5
             if observation["opp_pip"] - observation["my_pip"] < 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize) < 0: #we have less equity than the price (the price to pay is more than our equity)
@@ -403,14 +403,20 @@ class Player(Bot):
         self.log.append("My stack: " + str(observation["my_stack"]))
         self.log.append("My contribution: " + str(my_contribution))
         self.log.append("My bankroll: " + str(observation["my_bankroll"]))
+        
 
-        if RaiseAction in observation["legal_actions"] and random.random() < 0.99:
-            min_cost = observation["min_raise"] - observation["my_pip"] # the cost of a minimum bet/raise
-            max_cost = observation["max_raise"] - observation["my_pip"] # the cost of a maximum bet/raise
-            return RaiseAction(observation["max_raise"])
-        if CheckAction in observation["legal_actions"]:
-            return CheckAction()
-        return CallAction()
+        bool_bet, call = bet_or_nah(observation)
+        
+        if bool_bet > 0 and not call:
+            return RaiseAction(bool_bet)
+        
+        if bool_bet == 0 and call:
+            return CallAction()
+        
+        if bool_bet == 0 and not call:
+            return CheckAction() 
+       
+        return FoldAction()
 
 if __name__ == '__main__':
     run_bot(Player(), parse_args())
