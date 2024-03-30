@@ -19,13 +19,14 @@ x_4 = random.randrange(1,100) /100
 x_5 = random.randrange(1,100) /100
 x_6 = random.randrange(1,100) /100
 
-def PREFLOP(PREFLOP_EQUITY_SCALE = 0.5, PREFLOP_RAISE_STANDARD = 0.3, PREFLOP_RAISE_SCALE = 1.3, PREFLOP_CALL_STANDARD = 0.3, PREFLOP_RAISED_AGAINST_SCALE = 1.4):
+def PREFLOP(PREFLOP_EQUITY_SCALE = 0.5, PREFLOP_RAISE_STANDARD = 0.3, PREFLOP_RAISE_SCALE = 1.5, PREFLOP_CALL_STANDARD = 0.3, PREFLOP_RAISED_AGAINST_SCALE = 1.4):
     return (
            PREFLOP_EQUITY_SCALE,
            PREFLOP_RAISE_STANDARD,
            PREFLOP_RAISE_SCALE,
            PREFLOP_CALL_STANDARD,
            PREFLOP_RAISED_AGAINST_SCALE
+
            )
     
 
@@ -307,20 +308,27 @@ class Player(Bot):
             equity = preFlopEquity(my_cards) * PREFLOP_EQUITY_SCALE #0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
-                if observation["opp_pip"] - observation["my_pip"] == -1: #you are small blind first action
+                if bet_size == 1: #you are small blind first action
                     #you can either call or raise
                     if equity > PREFLOP_RAISE_STANDARD: #0.3, given some equity is it high enough to raise?
                         if potsize * PREFLOP_RAISE_SCALE > observation["max_raise"]:
                             return (observation["max_raise"], False)
-                        else: return (potsize * PREFLOP_RAISE_SCALE, False) #how much do you scale potsize by?
-                    else:
+                        else: return (int(potsize * PREFLOP_RAISE_SCALE), False) #how much do you scale potsize by?
+                    else: #call as small blind
                         return (bet_size, True)
-                else: # enemy raised
-                    #you can either call/raise/fold
-                    fold_frequency = [0,1]
-                    odds_of_hand_to_1 = (1-equity)/equity #result : 1
+                else: # enemy raised as small blind (you are big blind)
+                    #you can either call/re-raise/fold
                     if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
-                        return (-1, False) #this can be exploitable ***TENTATIVE*** (WE FOLD TOO MUCH)
+                        difference = abs(equity - self.equity_needed_against_bet(bet_size, potsize-bet_size))
+                        if difference < 0.08: #PREFLOP_BLUFFING_STANDARD if the margin we are down equity by is less than 8%
+                            x = random.randrage(1, 101)
+                            if x > 10: #90 percent of the times we will opt to fold
+                                return (-1, False)
+                            else: #10 percent of the times we will raise bluff
+                                if (observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE > observation["max_raise"]):
+                                    return ((observation["max_raise"]), False)
+                                return ((observation["min_raise"] * PREFLOP_RAISED_AGAINST_SCALE), False) #3 betting nearly 3x the raise, 1.4
+                        return (-1, False) #we are now folding the hands when our equity deficit is less than 8%
                     else: #we do not have less equity (can either call or re-raise)
                         difference = equity - self.equity_needed_against_bet(bet_size, potsize-bet_size)
                         if difference < PREFLOP_CALL_STANDARD: #WE OPT TO CALL, how much risk are you willing to take relative to your opp equity, 0.3
@@ -336,6 +344,9 @@ class Player(Bot):
 
                     pot_odds
                     #calculate your equity. 
+            elif observation["opp_pip"] - observation["my_pip"] == 0: #you can either check or raise:
+                if equity > 0.3:
+                    return (int(potsize + potsize*0.7))
             else: # There is no bet against you. you can either check or fold. #YOU ARE BIG BLIND
                 if equity > 0.3: #if you have at least 30% equity
                     return (int(potsize*0.7), False)
