@@ -283,7 +283,7 @@ class Player(Bot):
     def bet_or_nah(self, observation: dict):
         my_hand = observation["my_cards"]
         my_cards = (my_hand[0], my_hand[1])
-        potsize = 400 - (observation["my_stack"] - observation["opp_stack"])
+        potsize = 800 - (observation["my_stack"] - observation["opp_stack"])
         button = False
         
 
