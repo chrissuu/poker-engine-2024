@@ -282,7 +282,7 @@ class Player(Bot):
     
     def bet_or_nah(self, observation: dict, potsize):
         my_hand = observation["my_cards"]
-        my_cards = (my_hand[0].toUpper(), my_hand[1].toUpper())
+        my_cards = (my_hand[0].upper(), my_hand[1].upper())
        
         button = False
         
@@ -347,7 +347,7 @@ class Player(Bot):
             #         return (0, true) #check
             # 
         if observation["street"] == 1: #FLOP
-            flop_card = observation["board_cards"][0].toUpper()
+            flop_card = observation["board_cards"][0].upper()
             equity = postFlopEquity(flop_card, my_cards) * 0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
@@ -422,7 +422,7 @@ class Player(Bot):
 
         #RIVER
         if observation["street"] == 2:
-            board_river = (observation["board_cards"][0].toUpper(), observation["board_cards"][1].toUpper())
+            board_river = (observation["board_cards"][0].upper(), observation["board_cards"][1].upper())
             equity = postRiverEquity(my_cards, board_river) * 0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
