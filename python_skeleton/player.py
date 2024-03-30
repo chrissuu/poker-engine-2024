@@ -288,7 +288,7 @@ class Player(Bot):
         
 
         if observation["street"] == 0:
-            equity = preFlopEquity(my_cards) * 0.5 #0.5
+            equity = preFlopEquity(my_cards.toUpper()) * 0.5 #0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if bet_size == 1: #you are small blind first action
@@ -347,8 +347,8 @@ class Player(Bot):
             #         return (0, true) #check
             # 
         if observation["street"] == 1: #FLOP
-            flop_card = observation["board_cards"][0].toLower()
-            equity = postFlopEquity(flop_card, my_cards) * 0.5
+            flop_card = observation["board_cards"][0].toUpper()
+            equity = postFlopEquity(flop_card, my_cards.toUpper()) * 0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
@@ -422,8 +422,8 @@ class Player(Bot):
 
         #RIVER
         if observation["street"] == 2:
-            board_river = (observation["board_cards"][0].toLower(), observation["board_cards"][1].toLower())
-            equity = postRiverEquity(my_cards) * 0.5
+            board_river = (observation["board_cards"][0].toUpper(), observation["board_cards"][1].toUpper())
+            equity = postRiverEquity(my_cards, board_river) * 0.5
             if observation["opp_pip"] - observation["my_pip"] > 0: #enemy raised you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
