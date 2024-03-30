@@ -301,7 +301,10 @@ class Player(Bot):
                     #         return (3, False) #how much do you scale potsize by?
                     # else: #call as small blind
                     #     return (bet_size, True)
-                    return (1, True)
+                    if equity > 0.3:
+                        return (int(observation["my_stack"]/2), False)
+                    else:
+                        return (1, True)
                 else: # enemy raised as small blind (you are big blind)
                     #you can either call/re-raise/fold
                     if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
