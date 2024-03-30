@@ -292,14 +292,16 @@ class Player(Bot):
             if observation["opp_pip"] - observation["my_pip"] > 0: #There is a bet against you
                 bet_size = observation["opp_pip"] - observation["my_pip"]
                 if bet_size == 1: #you are small blind first action
-                    button = True
-                    #you can either call or raise
-                    if equity > 0.3: #0.3, given some equity is it high enough to raise?
-                        if potsize * 1.5 > observation["max_raise"]:
-                            return (observation["max_raise"], False)
-                        else: return (3, False) #how much do you scale potsize by?
-                    else: #call as small blind
-                        return (bet_size, True)
+                    # button = True
+                    # #you can either call or raise
+                    # if equity > 0.3: #0.3, given some equity is it high enough to raise?
+                    #     if potsize * 1.5 > observation["max_raise"]:
+                    #         return (observation["max_raise"], False)
+                    #     else: 
+                    #         return (3, False) #how much do you scale potsize by?
+                    # else: #call as small blind
+                    #     return (bet_size, True)
+                    return (1, True)
                 else: # enemy raised as small blind (you are big blind)
                     #you can either call/re-raise/fold
                     if equity - self.equity_needed_against_bet(bet_size, potsize-bet_size) < 0: #we have less equity than the price (the price to pay is more than our equity)
