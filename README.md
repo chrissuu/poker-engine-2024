@@ -1,5 +1,5 @@
 Poker Bot created for CMU's Data Science & Poker Club, Poker AI Competition. 
 
-Coded by Roy Park (CMU Freshman), Aditya Arjun (CMU Freshman), Jaden Lee (CMU Freshman), Chris Su (CMU Freshman).
+Coded by Aditya Arjun, Jaden Lee (Monte Carlo simulations); Roy Park, Chris Su (Poker bot architecture)
 
 Moved to finals and placed 9th out of 50+ teams. 
